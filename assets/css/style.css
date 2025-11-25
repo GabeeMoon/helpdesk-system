@@ -40,6 +40,13 @@
   --input-border: #cbd5e1;
   /* Slate 300 */
 
+  /* --- SPACING --- */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+
   /* --- GLASSMORPHISM --- */
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
@@ -169,7 +176,7 @@ body.dark-mode .text-gradient {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg);
 }
 
 .card:hover {
@@ -180,13 +187,13 @@ body.dark-mode .text-gradient {
 .card-header {
   background-color: transparent;
   border-bottom: 1px solid var(--border-color);
-  padding: 1.5rem;
+  padding: var(--space-lg);
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .card-body {
-  padding: 1.5rem;
+  padding: var(--space-lg);
   color: var(--text-secondary);
 }
 
@@ -263,11 +270,27 @@ body.dark-mode .text-gradient {
 }
 
 /* --- LAYOUT: SIDEBAR --- */
-.sidebar {
+#sidebar-wrapper {
+  width: 260px;
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
   background-color: var(--surface-color);
   border-right: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-  z-index: 1000;
+  transition: margin-left 0.3s ease;
+  z-index: 1050;
+}
+
+#page-content-wrapper {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.sidebar-heading {
+  font-family: 'Outfit', sans-serif;
+  color: var(--text-primary);
+  padding: 2rem 0;
 }
 
 .sidebar .list-group-item {
@@ -293,12 +316,6 @@ body.dark-mode .text-gradient {
   box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
 }
 
-.sidebar-heading {
-  font-family: 'Outfit', sans-serif;
-  color: var(--text-primary);
-  padding: 2rem 0;
-}
-
 /* --- LAYOUT: CHAT --- */
 .chat-container {
   background-color: var(--bg-color);
@@ -309,7 +326,8 @@ body.dark-mode .text-gradient {
 
 .chat-box {
   padding: 1.5rem;
-  height: 400px;
+  height: calc(100vh - 350px);
+  min-height: 400px;
   overflow-y: auto;
   background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -398,6 +416,29 @@ body.dark-mode .text-gradient {
   color: var(--text-primary);
 }
 
+/* --- SKELETON LOADING --- */
+.skeleton-row {
+  animation: pulse 1.5s infinite;
+}
+
+.skeleton-text {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 0.6;
+  }
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
   #wrapper.toggled #sidebar-wrapper {
@@ -406,14 +447,11 @@ body.dark-mode .text-gradient {
 
   #sidebar-wrapper {
     margin-left: -260px;
-    position: fixed;
-    height: 100vh;
-    z-index: 1050;
   }
 
   #page-content-wrapper {
-    width: 100% !important;
-    margin-left: 0 !important;
+    width: 100%;
+    margin-left: 0;
   }
 
   /* Mobile Cards for Tables */

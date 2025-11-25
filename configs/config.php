@@ -8,15 +8,6 @@ define('DB_NAME', 'sistema_chamados');
 // Definições de Caminho
 define('BASE_URL', 'http://localhost/sistema-chamados2/');
 
-// Conexão com Banco de Dados
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-if ($conn->connect_error) {
-    die("Falha na conexão: " . $conn->connect_error);
-}
-
-$conn->set_charset("utf8mb4");
-
 // Iniciar Sessão
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
@@ -32,8 +23,7 @@ spl_autoload_register(function ($class_name) {
 
 // Funções Auxiliares
 function limparInput($data) {
-    global $conn;
-    return $conn->real_escape_string(trim(htmlspecialchars($data)));
+    return trim(htmlspecialchars($data));
 }
 
 function verificarLogin() {

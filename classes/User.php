@@ -1,21 +1,23 @@
 <?php
 class User {
-    private $conn;
+    private $db;
 
     public function __construct() {
-        global $conn;
-        $this->conn = $conn;
+        $this->db = Database::getInstance();
     }
 
     public function login($email, $password) {
-        $email = $this->conn->real_escape_string($email);
-        $sql = "SELECT * FROM users WHERE email = '$email'";
-        $result = $this->conn->query($sql);
+        $result = $this->db->query("SELECT * FROM users WHERE email = ?", [$email], "s");
 
         if ($result->num_rows > 0) {
             $user = $result->fetch_assoc();
-            // Verify MD5
-            if (md5($password) === $user['password']) {
+            // Verify Password (supports both MD5 for legacy and Bcrypt for new)
+            if (password_verify($password, $user['password']) || md5($password) === $user['password']) {
+                // If it was MD5, we should probably update it to Bcrypt on login
+                if (md5($password) === $user['password']) {
+                    $newHash = password_hash($password, PASSWORD_DEFAULT);
+                    $this->update($user['id'], ['password' => $newHash]);
+                }
                 return $user;
             }
         }
@@ -23,30 +25,40 @@ class User {
     }
 
     public function find($id) {
-        $id = (int)$id;
-        $result = $this->conn->query("SELECT * FROM users WHERE id = $id");
+        $result = $this->db->query("SELECT * FROM users WHERE id = ?", [$id], "i");
         return $result->fetch_assoc();
     }
 
     public function update($id, $data) {
-        $id = (int)$id;
         $set = [];
+        $params = [];
+        $types = "";
+
         foreach ($data as $key => $value) {
-            $value = $this->conn->real_escape_string($value);
-            $set[] = "$key = '$value'";
+            $set[] = "$key = ?";
+            $params[] = $value;
+            $types .= "s";
         }
+        
+        $params[] = $id;
+        $types .= "i";
+
         $setStr = implode(', ', $set);
-        return $this->conn->query("UPDATE users SET $setStr WHERE id = $id");
+        return $this->db->execute("UPDATE users SET $setStr WHERE id = ?", $params, $types);
     }
 
     public function create($data) {
         $keys = implode(', ', array_keys($data));
-        $values = implode("', '", array_map([$this->conn, 'real_escape_string'], array_values($data)));
-        return $this->conn->query("INSERT INTO users ($keys) VALUES ('$values')");
+        $placeholders = implode(', ', array_fill(0, count($data), '?'));
+        
+        $params = array_values($data);
+        $types = str_repeat('s', count($params));
+
+        return $this->db->execute("INSERT INTO users ($keys) VALUES ($placeholders)", $params, $types);
     }
 
     public function getAll() {
-        $result = $this->conn->query("SELECT * FROM users ORDER BY name ASC");
+        $result = $this->db->query("SELECT * FROM users ORDER BY name ASC");
         $users = [];
         while ($row = $result->fetch_assoc()) {
             $users[] = $row;
@@ -55,8 +67,7 @@ class User {
     }
     
     public function delete($id) {
-        $id = (int)$id;
-        return $this->conn->query("DELETE FROM users WHERE id = $id");
+        return $this->db->execute("DELETE FROM users WHERE id = ?", [$id], "i");
     }
 }
 ?>

@@ -6,6 +6,11 @@ verificarLogin();
 $ticketModel = new Ticket();
 $userModel = new User();
 
+// CSRF Token Generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 // Handle AJAX Requests
 if (isset($_GET['action'])) {
     header('Content-Type: application/json');
@@ -44,6 +49,12 @@ if (isset($_GET['action'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'create_ticket') {
     header('Content-Type: application/json');
     
+    // CSRF Validation
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        echo json_encode(['status' => 'error', 'message' => 'Erro de segurança (CSRF). Recarregue a página.']);
+        exit;
+    }
+
     $data = [
         'subject' => $_POST['subject'],
         'creator_id' => $_SESSION['user_id'],
@@ -118,7 +129,7 @@ if ($user_photo == 'default.png' || empty($user_photo)) {
 
 <div class="d-flex" id="wrapper">
     <!-- Sidebar -->
-    <div class="sidebar border-end" id="sidebar-wrapper" style="width: 260px; position: fixed; height: 100%; overflow-y: auto;">
+    <div class="sidebar border-end" id="sidebar-wrapper">
         <div class="sidebar-heading text-center py-4 primary-text fs-4 fw-bold border-bottom">
             <i class="fas fa-headset me-2 text-primary"></i>Suporte
         </div>
@@ -151,7 +162,7 @@ if ($user_photo == 'default.png' || empty($user_photo)) {
     </div>
 
     <!-- Page Content -->
-    <div id="page-content-wrapper" style="margin-left: 260px; width: calc(100% - 260px); transition: all 0.3s;">
+    <div id="page-content-wrapper">
         <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4 px-4 border-bottom">
             <div class="d-flex align-items-center">
                 <button class="btn btn-light-custom me-3 d-lg-none" id="menu-toggle"><i class="fas fa-bars"></i></button>
@@ -321,6 +332,7 @@ if ($user_photo == 'default.png' || empty($user_photo)) {
             <div class="modal-body pt-4">
                 <form id="createTicketForm" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="create_ticket">
+                    <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                     <div class="mb-3">
                         <label class="form-label small text-uppercase text-muted">Assunto</label>
                         <input type="text" class="form-control" name="subject" required>

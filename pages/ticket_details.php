@@ -136,17 +136,15 @@ $current_user_id = $userId;
 </head>
 <body>
 
-<div class="container py-5 fade-in">
+<div class="container-fluid px-4 py-4 fade-in">
     <div class="row justify-content-center">
-        <div class="col-lg-10">
+        <div class="col-lg-10 col-xl-8">
             <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
                 <a href="dashboard.php" class="btn btn-light-custom shadow-sm"><i class="fas fa-arrow-left me-2"></i>Voltar</a>
-                <div class="d-flex align-items-center">
-                    <span class="badge rounded-pill bg-secondary fs-6 me-2" id="status-badge"><?php echo $ticket['status']; ?></span>
-                </div>
-            </div>
-                    <div class="mt-4 d-flex justify-content-end gap-2" id="action-buttons">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="badge rounded-pill bg-secondary fs-6" id="status-badge"><?php echo $ticket['status']; ?></span>
+                    <div id="action-buttons" class="d-flex gap-2">
                         <!-- Injected via JS based on status -->
                     </div>
                 </div>
@@ -154,8 +152,9 @@ $current_user_id = $userId;
 
             <!-- Chat Area -->
             <div class="chat-container shadow-sm">
-                <div class="card-header bg-white border-bottom py-3 d-flex align-items-center">
+                <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between">
                     <h5 class="mb-0 fw-bold"><i class="fas fa-comments me-2 text-primary"></i>Histórico</h5>
+                    <small class="text-muted">Chamado #<?php echo $ticket['id']; ?></small>
                 </div>
                 
                 <div class="chat-box" id="chat-box">
@@ -172,7 +171,7 @@ $current_user_id = $userId;
                             </button>
                             <input type="file" id="attachment" name="attachment" style="display: none;">
                             <input type="text" class="form-control border-0 bg-transparent" name="message" placeholder="Digite sua resposta..." autocomplete="off">
-                            <button class="btn btn-custom rounded-circle m-1" type="submit" style="width: 40px; height: 40px; padding: 0;">
+                            <button class="btn btn-custom rounded-circle m-1" type="submit" style="width: 40px; height: 40px; padding: 0; display: flex; align-items: center; justify-content: center;">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>

@@ -12,7 +12,18 @@ if (isset($_SESSION['user_id'])) {
     exit;
 }
 
+// CSRF Token Generation
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF Validation
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        echo json_encode(['status' => 'error', 'message' => 'Erro de segurança (CSRF). Recarregue a página.']);
+        exit;
+    }
+
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
@@ -96,6 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div id="alert-area"></div>
 
         <form id="loginForm">
+            <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
             <div class="mb-4">
                 <label for="email" class="form-label text-white-50 small text-uppercase fw-bold">Email</label>
                 <div class="input-group">
